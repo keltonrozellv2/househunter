@@ -184,6 +184,9 @@ def parse_args() -> argparse.Namespace:
                    help="run Stage-2 deep pulls on candidates that clear the prescore gate")
     p.add_argument("--confirm", action="store_true",
                    help="pre-approve the deep-pull API spend (skips the prompt)")
+    p.add_argument("--max-deep", type=int, default=None,
+                   help="deep-pull at most N candidates (highest prescore first) "
+                        "to protect the monthly RentCast budget")
     p.add_argument("--min-score", type=float, default=None,
                    help="only report candidates scoring at least this (default: all)")
     p.add_argument("--no-commute", action="store_true", help="skip commute routing")
@@ -264,6 +267,9 @@ def main() -> int:
 
     # ---------------- Stage 2: deep pull + analysis ----------------
     to_analyze = gated if (sample_mode or args.deep or args.address) else []
+    if args.max_deep is not None and len(to_analyze) > args.max_deep:
+        to_analyze = sorted(to_analyze, key=lambda a: -a.prescore)[: args.max_deep]
+        print(f"  --max-deep: limiting to the top {args.max_deep} by prescore")
     if not sample_mode and gated and not args.deep and not args.address:
         est_calls = len(gated) * cfg["pipeline"]["stage2_deep_pull"]["calls_per_property"]
         print(f"\nStage 2 skipped — rerun with --deep --confirm to spend "
