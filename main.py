@@ -160,6 +160,16 @@ def analyze(a: Analysis, cfg: dict, cache: Cache, sample_mode: bool) -> Analysis
         lender_credit=buyer["lender_credit"],
     )
     a.underwrite = uw.underwrite(deal, ua["min_cashflow_when_rented"])
+
+    # break-even targets: what price/rent would clear the gates for this home
+    min_cf = ua["min_cashflow_when_rented"]
+    a.flip = {
+        "price_cashflow": uw.breakeven_price(deal, min_cf),
+        "rent_needed": uw.breakeven_rent(deal, min_cf),
+        "price_bah": uw.max_price_for_piti(cfg["buy_box"]["max_monthly_piti"], deal),
+    }
+    a.flip["buy_at"] = min(a.flip["price_cashflow"], a.flip["price_bah"])
+
     a.score = score_mod.score_analysis(a, cfg)
     a.offer = offer_mod.recommend_offer(
         l.list_price, a.value, l.days_on_market,

@@ -114,6 +114,7 @@ class Analysis:
     score: Optional[Score] = None
     offer: Optional[OfferRec] = None
     prescore: Optional[float] = None          # Stage-1 cheap score (0-100)
+    flip: Optional[dict] = None               # break-even targets that flip a PASS
     hard_filter_fails: list = field(default_factory=list)
     stage: str = "stage1"                     # stage1 | stage2
     notes: list = field(default_factory=list)

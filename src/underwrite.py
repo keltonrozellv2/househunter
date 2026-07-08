@@ -172,6 +172,50 @@ def cash_on_cash(annual_cash_flow: float, cash_invested: float,
 
 
 # --------------------------------------------------------------------------- #
+# Break-even solvers — "what flips a PASS to a BUY"
+# --------------------------------------------------------------------------- #
+
+def breakeven_price(d: DealInputs, min_cash_flow: float = 0.0) -> float:
+    """Max purchase price at which rental-phase cash flow >= min_cash_flow.
+
+    Rent, taxes (driven by market value, not price), insurance and HOA are
+    fixed; only P&I scales with price, linearly — so this inverts exactly the
+    same cash-flow equation underwrite() computes forward.
+    """
+    fee = 0.0 if d.disability_exempt else d.va_funding_fee_pct
+    k = monthly_pi(1.0 + fee, d.annual_rate, d.term_years)
+    tax_rental = ga_property_tax(d.market_value, d.millage_rate, 0.0,
+                                 d.assessment_ratio)
+    reserves = d.vacancy_pct + d.maintenance_pct + d.capex_pct + d.mgmt_pct
+    fixed = (d.monthly_rent * (1 - reserves) - tax_rental / 12.0
+             - d.insurance_annual / 12.0 - d.hoa_monthly - min_cash_flow)
+    return max(0.0, fixed / k)
+
+
+def breakeven_rent(d: DealInputs, min_cash_flow: float = 0.0) -> float:
+    """Min monthly rent at which rental-phase cash flow >= min_cash_flow."""
+    loan = loan_amount(d.purchase_price, d.va_funding_fee_pct, d.disability_exempt)
+    pi = monthly_pi(loan, d.annual_rate, d.term_years)
+    tax_rental = ga_property_tax(d.market_value, d.millage_rate, 0.0,
+                                 d.assessment_ratio)
+    reserves = d.vacancy_pct + d.maintenance_pct + d.capex_pct + d.mgmt_pct
+    need = (min_cash_flow + pi + tax_rental / 12.0
+            + d.insurance_annual / 12.0 + d.hoa_monthly)
+    return need / (1 - reserves) if reserves < 1 else float("inf")
+
+
+def max_price_for_piti(piti_cap: float, d: DealInputs) -> float:
+    """Max purchase price at which OWNER-phase PITI stays under the cap
+    (the BAH governor). Taxes are held at the market-value-based owner rate."""
+    fee = 0.0 if d.disability_exempt else d.va_funding_fee_pct
+    k = monthly_pi(1.0 + fee, d.annual_rate, d.term_years)
+    tax_owner = ga_property_tax(d.market_value, d.millage_rate,
+                                d.homestead_exemption_assessed, d.assessment_ratio)
+    fixed = piti_cap - tax_owner / 12.0 - d.insurance_annual / 12.0 - d.hoa_monthly
+    return max(0.0, fixed / k)
+
+
+# --------------------------------------------------------------------------- #
 # Main underwrite
 # --------------------------------------------------------------------------- #
 
