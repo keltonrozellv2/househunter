@@ -301,8 +301,11 @@ def main() -> int:
             try:
                 analyzed.append(analyze(a, cfg, cache, sample_mode))
             except BudgetExhausted as exc:
-                print(f"\n✗ {exc}\n  Stopping deep pulls; reporting what completed.")
-                break
+                # skip, don't break: already-cached candidates later in the
+                # list still analyze for free even when the budget is gone
+                print(f"  ✗ budget stop for {a.listing.full_address} — "
+                      f"skipping uncached candidates ({exc})")
+                continue
             except Exception as exc:
                 print(f"  ✗ {a.listing.full_address}: {exc}")
 
