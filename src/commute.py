@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import math
 import os
+import time
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -27,6 +28,29 @@ from models import CommuteResult
 ORS_URL = "https://api.openrouteservice.org/v2/directions/driving-car"
 GOOGLE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json"
 COMMUTE_TTL_DAYS = 90  # roads don't move
+
+# ORS free tier allows ~40 directions requests/minute — space calls out and
+# back off on 429 instead of hammering the API on big Stage-1 batches.
+_ORS_MIN_INTERVAL_S = 1.6
+_last_ors_call = 0.0
+
+
+def _ors_get(params: dict) -> dict:
+    """Rate-limited ORS request with backoff on 429."""
+    global _last_ors_call
+    for attempt, backoff in enumerate((0, 10, 30)):
+        wait = _last_ors_call + _ORS_MIN_INTERVAL_S - time.time()
+        if wait > 0:
+            time.sleep(wait)
+        if backoff:
+            time.sleep(backoff)
+        _last_ors_call = time.time()
+        resp = requests.get(ORS_URL, params=params, timeout=20)
+        if resp.status_code == 429:
+            continue  # rate limited — back off and retry
+        resp.raise_for_status()
+        return resp.json()
+    raise RuntimeError("ORS rate limit persisted after retries")
 
 
 def haversine_miles(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -91,12 +115,10 @@ def commute_to_base(lat: Optional[float], lng: Optional[float],
         cached = cache.get("ors_commute", params, COMMUTE_TTL_DAYS)
         if cached is None:
             try:
-                resp = requests.get(ORS_URL, params={
-                    "api_key": ors_key,
-                    "start": f"{lng},{lat}",
-                    "end": f"{base_lng},{base_lat}"}, timeout=20)
-                resp.raise_for_status()
-                summary = resp.json()["features"][0]["properties"]["summary"]
+                data = _ors_get({"api_key": ors_key,
+                                 "start": f"{lng},{lat}",
+                                 "end": f"{base_lng},{base_lat}"})
+                summary = data["features"][0]["properties"]["summary"]
                 cached = {"min": summary["duration"] / 60.0,
                           "mi": summary["distance"] / 1609.34}
                 cache.set("ors_commute", params, cached)
