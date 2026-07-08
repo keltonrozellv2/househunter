@@ -103,23 +103,33 @@ def fetch_rentcast_listings(cache: Cache, rc_cfg: dict, geo: dict,
 
     listings: list[Listing] = []
     for area in areas:
-        params = {**area, "status": "Active", "propertyType": "Single Family",
-                  "maxPrice": int(max_price), "limit": 500}
-        cached = cache.get("/listings/sale", params, ttl)
-        if cached is None:
-            cache.check_budget(cap, warn)
-            resp = requests.get(
-                f"{RENTCAST_BASE}/listings/sale",
-                params=params, headers={"X-Api-Key": api_key}, timeout=30)
-            resp.raise_for_status()
-            cached = resp.json()
-            cache.set("/listings/sale", params, cached)
-            used = cache.record_call()
-            print(f"  RentCast listing search {area} -> {len(cached)} results "
-                  f"({used}/{cap} calls this month)")
-        else:
-            print(f"  RentCast listing search {area} -> {len(cached)} results (cached)")
-        listings.extend(normalize_rentcast_listing(item) for item in cached)
+        # paginate: RentCast caps a search at 500 results, and Augusta-sized
+        # cities genuinely exceed that — keep pulling pages until a short one
+        offset = 0
+        while True:
+            params = {**area, "status": "Active", "propertyType": "Single Family",
+                      "maxPrice": int(max_price), "limit": 500}
+            if offset:  # page 1 keeps the original cache key (offset-free)
+                params["offset"] = offset
+            cached = cache.get("/listings/sale", params, ttl)
+            if cached is None:
+                cache.check_budget(cap, warn)
+                resp = requests.get(
+                    f"{RENTCAST_BASE}/listings/sale",
+                    params=params, headers={"X-Api-Key": api_key}, timeout=30)
+                resp.raise_for_status()
+                cached = resp.json()
+                cache.set("/listings/sale", params, cached)
+                used = cache.record_call()
+                print(f"  RentCast listing search {area} +{offset} -> "
+                      f"{len(cached)} results ({used}/{cap} calls this month)")
+            else:
+                print(f"  RentCast listing search {area} +{offset} -> "
+                      f"{len(cached)} results (cached)")
+            listings.extend(normalize_rentcast_listing(item) for item in cached)
+            if len(cached) < 500:
+                break
+            offset += 500
 
     # de-dupe across overlapping areas
     seen: set[str] = set()

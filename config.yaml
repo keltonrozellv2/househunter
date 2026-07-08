@@ -35,7 +35,8 @@ geography:
   base_lat: 33.4204
   base_lng: -82.1387
   counties: [Richmond, Columbia]  # + McDuffie/Jefferson edges if commute allows
-  target_cities: [Grovetown, Evans, Harlem, Augusta, Hephzibah, Martinez]
+  target_cities: [Grovetown, Evans, Harlem, Augusta, Hephzibah, Martinez,
+                  Blythe, Appling, Thomson]   # Blythe/Appling in-county; Thomson = I-20 edge, commute filter decides
   zips: []                        # optional explicit zip list to scope Stage-1 pulls
 
 # -----------------------------------------------------------------------------

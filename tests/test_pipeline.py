@@ -212,6 +212,50 @@ class TestPrescorePiti(_ScoreBase):
 
 
 # --------------------------------------------------------------------------- #
+# Break-even solvers — must invert the verified forward math exactly
+# --------------------------------------------------------------------------- #
+
+class TestBreakeven(unittest.TestCase):
+
+    def setUp(self):
+        self.deal = uw.DealInputs(
+            purchase_price=150_000, market_value=160_000,
+            annual_rate=0.06125, monthly_rent=1_500,
+            millage_rate=34.4, homestead_exemption_assessed=10_000,
+            mgmt_pct=0.0)
+
+    def test_breakeven_price_roundtrip(self):
+        # underwriting AT the break-even price must give ~zero cash flow
+        price = uw.breakeven_price(self.deal, min_cash_flow=0.0)
+        d2 = uw.DealInputs(**{**self.deal.__dict__, "purchase_price": price})
+        r = uw.underwrite(d2)
+        self.assertAlmostEqual(r.monthly_cash_flow, 0.0, places=4)
+
+    def test_breakeven_rent_roundtrip(self):
+        rent = uw.breakeven_rent(self.deal, min_cash_flow=0.0)
+        d2 = uw.DealInputs(**{**self.deal.__dict__, "monthly_rent": rent})
+        r = uw.underwrite(d2)
+        self.assertAlmostEqual(r.monthly_cash_flow, 0.0, places=4)
+
+    def test_breakeven_respects_min_cashflow(self):
+        p0 = uw.breakeven_price(self.deal, min_cash_flow=0.0)
+        p100 = uw.breakeven_price(self.deal, min_cash_flow=100.0)
+        self.assertLess(p100, p0)  # demanding +$100/mo lowers the max price
+
+    def test_max_price_for_piti_roundtrip(self):
+        cap = 1509.0
+        price = uw.max_price_for_piti(cap, self.deal)
+        d2 = uw.DealInputs(**{**self.deal.__dict__, "purchase_price": price})
+        r = uw.underwrite(d2)
+        self.assertAlmostEqual(r.piti_owner, cap, places=4)
+
+    def test_funding_fee_exemption_raises_ceiling(self):
+        exempt = uw.DealInputs(**{**self.deal.__dict__, "disability_exempt": True})
+        self.assertGreater(uw.max_price_for_piti(1509, exempt),
+                           uw.max_price_for_piti(1509, self.deal))
+
+
+# --------------------------------------------------------------------------- #
 # Cache & RentCast budget
 # --------------------------------------------------------------------------- #
 

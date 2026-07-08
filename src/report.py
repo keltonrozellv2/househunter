@@ -9,11 +9,12 @@ external scripts/fonts/services. Every report ends with the disclaimer.
 from __future__ import annotations
 
 import json
+import urllib.parse
 from pathlib import Path
 
 import pandas as pd
 
-from models import Analysis
+from models import Analysis, Listing
 
 DISCLAIMER = ("This is decision-support, not financial or legal advice. "
               "Estimates are model outputs, not appraisals — verify everything "
@@ -27,6 +28,58 @@ def _money(x) -> str:
     return f"${x:,.0f}" if x is not None else "n/a"
 
 
+def listing_links(l: Listing) -> tuple[str, str]:
+    """(photos_url, map_url) — deep links a human clicks to see the house.
+
+    We link out to listing sites rather than scraping them (their terms forbid
+    scraping; linking is fine). Prefer the listing's own URL when the feed has
+    one; otherwise a Zillow address search resolves straight to the property.
+    """
+    if l.listing_url:
+        photos = l.listing_url
+    else:
+        slug = f"{l.address} {l.city} {l.state} {l.zip_code}".replace(",", "")
+        photos = ("https://www.zillow.com/homes/"
+                  + urllib.parse.quote(slug.replace(" ", "-")) + "_rb/")
+    map_url = ("https://www.google.com/maps/place/"
+               + urllib.parse.quote(l.full_address))
+    return photos, map_url
+
+
+def flip_section(a: Analysis) -> list[str]:
+    """'What flips it to BUY' lines for a PASS whose failure is price-shaped.
+
+    Only rendered when no un-fixable disqualifier (manufactured, commute,
+    pre-1950 VA risk) exists — no price fixes those. The score gate is
+    re-checked on a re-run at the new numbers; these targets clear the hard
+    cash-flow and BAH gates, which is what kills most candidates.
+    """
+    if a.score.vote == "YES" or a.flip is None:
+        return []
+    unfixable = [d for d in a.score.disqualifiers if "BAH" not in d]
+    if unfixable:
+        return ["", "## What flips it to BUY",
+                f"- Nothing price-shaped — disqualified: {unfixable[0]}"]
+    f = a.flip
+    lines = ["", "## What flips it to BUY"]
+    if a.underwrite.monthly_cash_flow < 0:
+        lines.append(
+            f"- **Offer ≤ {_money(f['buy_at'])}** — cash flow breaks even at "
+            f"{_money(f['price_cashflow'])} with rent held at "
+            f"{_money(a.underwrite.simple_rent_minus_piti + a.underwrite.piti_rental)}"
+            f"/mo (BAH ceiling for this home: {_money(f['price_bah'])})")
+        lines.append(
+            f"- **Or rent ≥ {_money(f['rent_needed'])}/mo** at the current "
+            f"list price (verify against the rent range before believing it)")
+    else:
+        lines.append(
+            f"- Cash flow already clears; the score is what's short. "
+            f"A price near {_money(min(f['buy_at'], a.value.point * 0.95))} "
+            f"improves the deal-spread and cash-flow sub-scores — re-run "
+            f"--address at the new price to check the vote.")
+    return lines
+
+
 def render_card(a: Analysis) -> str:
     """One-page markdown report card (also printed to console)."""
     l, e, v, uw, s, o = (a.listing, a.enrichment, a.value, a.underwrite,
@@ -35,6 +88,7 @@ def render_card(a: Analysis) -> str:
            else f"{uw.cash_on_cash:.1%}")
     commute = a.commute.label if a.commute else "not computed"
     one_pct = uw.one_percent * 100
+    photos_url, map_url = listing_links(l)
 
     lines = [
         f"# {l.full_address}",
@@ -83,6 +137,9 @@ def render_card(a: Analysis) -> str:
         f"appraised {_money(e.county_appraised_value)}",
         f"- Commute to Fort Eisenhower: {commute}",
         f"- Schools: {e.school_district} — verify ratings: {e.greatschools_url}",
+        f"- **Photos / listing:** {photos_url}",
+        f"- **Map / Street View:** {map_url}",
+        *flip_section(a),
         "",
         "## Score breakdown",
         "| Factor | Points | Why |",
@@ -124,6 +181,10 @@ def to_row(a: Analysis) -> dict:
         "year_built": l.year_built,
         "construction": l.construction,
         "days_on_market": l.days_on_market,
+        "buy_at": round(a.flip["buy_at"]) if a.flip else None,
+        "rent_needed": round(a.flip["rent_needed"]) if a.flip else None,
+        "photos_url": listing_links(l)[0],
+        "map_url": listing_links(l)[1],
         "top_reason": s.reasons[0] if s.reasons else "",
     }
 
@@ -174,6 +235,9 @@ def _render_dashboard(rows: list[dict]) -> str:
   th:hover {{ color:var(--accent); }}
   td.addr, th.addr {{ text-align:left; max-width:280px; overflow:hidden;
                       text-overflow:ellipsis; }}
+  a {{ color:var(--accent); text-decoration:none; }}
+  a:hover {{ text-decoration:underline; }}
+  td a[title] {{ font-size:16px; }}
   .vote {{ font-weight:700; padding:2px 8px; border-radius:10px; }}
   .YES {{ color:var(--yes); background:var(--yes-bg); }}
   .NO  {{ color:var(--no);  background:var(--no-bg); }}
@@ -189,15 +253,18 @@ def _render_dashboard(rows: list[dict]) -> str:
 <script>
 const DATA = {data};
 const COLS = [
-  ["vote","Vote"],["score","Score"],["address","Address"],["list_price","List $"],
+  ["vote","Vote"],["score","Score"],["address","Address"],["links","🔗"],
+  ["list_price","List $"],
   ["est_value","Est. value"],["spread_pct","Spread %"],["offer","Offer $"],
+  ["buy_at","Buy at $"],["rent_needed","BE rent $"],
   ["concession","Concession $"],["piti_owner","PITI $"],["rent_est","Rent est."],
   ["cash_flow_rented","CF rented $"],["cap_rate_pct","Cap %"],["dscr","DSCR"],
   ["commute_min","Commute min"],["beds","Bd"],["baths","Ba"],["sqft","Sqft"],
   ["year_built","Built"],["days_on_market","DOM"],["top_reason","Top reason"]];
 let sortKey = "score", asc = false;
 const fmt = (k,v) => v==null ? "" :
-  ["list_price","est_value","offer","concession","piti_owner","rent_est"].includes(k)
+  ["list_price","est_value","offer","concession","piti_owner","rent_est",
+   "buy_at","rent_needed"].includes(k)
     ? "$"+v.toLocaleString()
   : k==="cash_flow_rented" ? "$"+v.toLocaleString() : v;
 function render() {{
@@ -218,7 +285,8 @@ function render() {{
   document.querySelector("tbody").innerHTML = rows.map(r => `<tr>${{
     COLS.map(([k]) => {{
       if (k==="vote") return `<td><span class="vote ${{r.vote}}">${{r.vote==="YES"?"BUY":"PASS"}}</span></td>`;
-      if (k==="address") return `<td class="addr" title="${{r.address}}">${{r.address}}</td>`;
+      if (k==="address") return `<td class="addr" title="${{r.address}}"><a href="${{r.photos_url}}" target="_blank" rel="noopener">${{r.address}}</a></td>`;
+      if (k==="links") return `<td><a href="${{r.photos_url}}" target="_blank" rel="noopener" title="photos/listing">🏠</a> <a href="${{r.map_url}}" target="_blank" rel="noopener" title="map/street view">🗺</a></td>`;
       if (k==="top_reason") return `<td class="why">${{r.top_reason}}</td>`;
       const cls = (k==="cash_flow_rented"||k==="spread_pct") ? (r[k] < 0 === (k==="cash_flow_rented") ? "neg":"pos") : "";
       return `<td class="${{cls}}">${{fmt(k, r[k])}}</td>`;
