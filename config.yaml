@@ -1,0 +1,110 @@
+# =============================================================================
+# Fort Eisenhower Deal Scanner — config
+# Everything the tool does is driven from this file. Edit and re-run.
+# =============================================================================
+
+buyer:
+  loan_type: VA
+  interest_rate: 0.06125          # 6.125%
+  lender_credit: 3000             # applied to closing costs
+  down_payment: 0                 # VA $0 down
+  va_first_use: true
+  va_funding_fee_pct: 0.0215      # 2.15% first use, financed into the loan
+  disability_exempt: false        # true => funding fee waived (0%)
+  occupancy: owner_then_rental    # live in now, convert to rental later
+
+buy_box:
+  # --- BAH governor: BAH must cover PITI *and* utilities ---
+  bah_monthly: 1809
+  utilities_estimate_monthly: 300       # so BAH also covers power/water/etc.
+  max_monthly_piti: 1509                # = BAH - utilities; HARD filter, drop anything above
+  # NOTE: at 6.125% with $0 down + VA funding fee + GA taxes, a $1,509 PITI ceiling
+  # implies roughly a ~$195k-$205k purchase price. $250k below is now an upper bound
+  # only; the max_monthly_piti filter is what actually governs. Re-check per property.
+  max_price: 250000
+  property_types: [single_family]
+  min_beds: 3                     # confirm
+  min_baths: 2                    # confirm
+  max_commute_min_peak: 40        # weekday PM peak, to Fort Eisenhower
+  construction_preference: [brick, brick_veneer, masonry]   # scored, not required
+  exclude: [manufactured, mobile, leased_land]              # value + VA financing risk
+  min_school_rating: null         # e.g. 6 (GreatSchools 1-10), or null to just surface it
+
+geography:
+  base_name: Fort Eisenhower
+  base_lat: 33.4204
+  base_lng: -82.1387
+  counties: [Richmond, Columbia]  # + McDuffie/Jefferson edges if commute allows
+  target_cities: [Grovetown, Evans, Harlem, Augusta, Hephzibah, Martinez]
+  zips: []                        # optional explicit zip list to scope Stage-1 pulls
+
+# -----------------------------------------------------------------------------
+# THE "CARFAX" FUNNEL — conserve RentCast's 50 free calls/month.
+# Stage 1 casts a wide net with cheap/free filters (no per-property RentCast calls).
+# Stage 2 does the expensive per-property RentCast pull ONLY on serious candidates.
+# -----------------------------------------------------------------------------
+pipeline:
+  stage1_wide_screen:
+    # one RentCast area-listing search per zip returns the whole pool
+    source: rentcast_listing_search
+    filters: [price, property_type, beds, baths, commute, construction, exclude_list]
+    # a lightweight pre-score decides who is worth a deep pull
+    prescore_threshold: 55        # 0-100; below this, never spend a deep pull
+  stage2_deep_pull:
+    # the CarFax-style pull: only fires when you flag a property serious,
+    # OR it clears the prescore gate AND you pass --confirm
+    trigger: serious_flag_or_prescore
+    require_confirm: true         # tool asks before spending deep-pull calls
+    calls_per_property: 4         # AVM + rent + comps + records (approx)
+
+rentcast:
+  free_monthly_call_cap: 50
+  warn_at_calls: 40
+  cache_ttl_days:
+    listings: 1
+    property_records: 7
+    avm: 7
+    comps: 7
+  # DO NOT create multiple accounts to dodge the cap — it violates RentCast's
+  # terms and gets keys revoked. The funnel above is the real fix; if you
+  # outgrow it, RentCast Pro is ~$12/mo.
+
+attom:
+  enabled: false                  # 30-day free TRIAL only, then paid — optional
+  use_for: [school_boundaries, second_opinion_avm]
+
+commute:
+  provider: google_distance_matrix  # true peak traffic (needs Google billing / free credit)
+  fallback: openrouteservice        # free, but OFF-PEAK estimate only
+  peak_departure: "weekday 17:00 local"
+
+# -----------------------------------------------------------------------------
+# Underwriting assumptions (feed straight into src/underwrite.py)
+# -----------------------------------------------------------------------------
+underwriting_assumptions:
+  insurance_annual: 1600          # GA SFR estimate; per-listing override allowed
+  millage_rate: 30.0              # pulled per-county at runtime; this is a fallback
+  assessment_ratio: 0.40          # Georgia assesses at 40% of market value
+  homestead_exemption_assessed: 10000   # owner-occupied only; 0 in the rental phase
+  vacancy_pct: 0.08
+  maintenance_pct: 0.10           # of gross rent
+  capex_pct: 0.08                 # of gross rent (reserve)
+  mgmt_pct: 0.09                  # set 0.0 if you self-manage
+  hoa_monthly: 0
+  closing_costs_pct: 0.03
+  min_cashflow_when_rented: 0     # true cash flow (after reserves) must clear this
+  seller_concession_cap_pct: 0.04 # VA caps "concessions" at 4% of value (see prompt notes)
+
+# -----------------------------------------------------------------------------
+# Scoring rubric -> YES/NO (weights sum to 100; tune freely)
+# -----------------------------------------------------------------------------
+scoring:
+  weights:
+    rental_cash_flow: 25
+    value_vs_list: 20
+    value_retention_construction: 15
+    school_quality: 15
+    commute: 10
+    appreciation_proxy: 10
+    va_condition_risk: 5
+  yes_threshold: 70               # also requires cash-flow screen pass + no disqualifiers

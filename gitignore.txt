@@ -1,0 +1,21 @@
+# secrets — NEVER commit
+.env
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+env/
+venv/
+
+# local cache / data the tool creates at runtime
+cache.db
+*.sqlite
+results.csv
+dashboard.html
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
