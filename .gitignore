@@ -14,6 +14,7 @@ cache.db
 *.sqlite
 results.csv
 dashboard.html
+reports/
 
 # os / editor
 .DS_Store
