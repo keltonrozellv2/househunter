@@ -1,0 +1,210 @@
+[
+  {
+    "id": "sample-3021-anderson-dr",
+    "formattedAddress": "3021 Anderson Dr, Grovetown, GA 30813",
+    "addressLine1": "3021 Anderson Dr",
+    "city": "Grovetown", "state": "GA", "zipCode": "30813", "county": "Columbia",
+    "price": 179900, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1650,
+    "lotSize": 9147, "yearBuilt": 2015, "propertyType": "Single Family",
+    "construction": "brick veneer", "hoa": {"fee": 0}, "daysOnMarket": 9,
+    "latitude": 33.4504, "longitude": -82.1982, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 186000, "avm_value_low": 179000, "avm_value_high": 193000,
+      "rent_estimate": 1925, "rent_low": 1825, "rent_high": 2025,
+      "comps": [
+        {"price": 185000, "squareFootage": 1620, "address": "3105 Anderson Dr"},
+        {"price": 192000, "squareFootage": 1700, "address": "214 Brandywine Way"},
+        {"price": 179000, "squareFootage": 1610, "address": "422 Sweetbriar Ct"}
+      ],
+      "county_assessed_value": 73800, "county_appraised_value": 184500,
+      "millage_rate": 26.5, "tax_annual": 1956
+    }
+  },
+  {
+    "id": "sample-2214-ramblewood-dr",
+    "formattedAddress": "2214 Ramblewood Dr, Augusta, GA 30906",
+    "addressLine1": "2214 Ramblewood Dr",
+    "city": "Augusta", "state": "GA", "zipCode": "30906", "county": "Richmond",
+    "price": 149900, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1480,
+    "lotSize": 13068, "yearBuilt": 1995, "propertyType": "Single Family",
+    "construction": "brick", "hoa": {"fee": 0}, "daysOnMarket": 25,
+    "latitude": 33.4102, "longitude": -82.0301, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 157500, "avm_value_low": 149000, "avm_value_high": 165000,
+      "rent_estimate": 1825, "rent_low": 1700, "rent_high": 1950,
+      "comps": [
+        {"price": 155000, "squareFootage": 1460, "address": "2301 Ramblewood Dr"},
+        {"price": 162000, "squareFootage": 1550, "address": "2510 Kensington Dr"},
+        {"price": 151000, "squareFootage": 1440, "address": "1918 Overton Rd"}
+      ],
+      "county_assessed_value": 62000, "county_appraised_value": 155000,
+      "millage_rate": 34.4, "tax_annual": 2133
+    }
+  },
+  {
+    "id": "sample-4413-windsor-spring-rd",
+    "formattedAddress": "4413 Windsor Spring Rd, Hephzibah, GA 30815",
+    "addressLine1": "4413 Windsor Spring Rd",
+    "city": "Hephzibah", "state": "GA", "zipCode": "30815", "county": "Richmond",
+    "price": 185000, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1720,
+    "lotSize": 21780, "yearBuilt": 2005, "propertyType": "Single Family",
+    "construction": "vinyl", "hoa": {"fee": 0}, "daysOnMarket": 34,
+    "latitude": 33.3121, "longitude": -82.0962, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 189000, "avm_value_low": 180000, "avm_value_high": 198000,
+      "rent_estimate": 1595, "rent_low": 1495, "rent_high": 1695,
+      "comps": [
+        {"price": 187000, "squareFootage": 1740, "address": "4501 Windsor Spring Rd"},
+        {"price": 192000, "squareFootage": 1800, "address": "2205 Bunting Dr"}
+      ],
+      "county_assessed_value": 74400, "county_appraised_value": 186000,
+      "millage_rate": 34.4, "tax_annual": 2559
+    }
+  },
+  {
+    "id": "sample-618-baldwin-ct",
+    "formattedAddress": "618 Baldwin Ct, Harlem, GA 30814",
+    "addressLine1": "618 Baldwin Ct",
+    "city": "Harlem", "state": "GA", "zipCode": "30814", "county": "Columbia",
+    "price": 172000, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1560,
+    "lotSize": 17424, "yearBuilt": 1988, "propertyType": "Single Family",
+    "construction": "frame", "hoa": {"fee": 0}, "daysOnMarket": 75,
+    "latitude": 33.4146, "longitude": -82.3126, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 178000, "avm_value_low": 168000, "avm_value_high": 188000,
+      "rent_estimate": 1650, "rent_low": 1550, "rent_high": 1750,
+      "comps": [
+        {"price": 175000, "squareFootage": 1540, "address": "702 Baldwin Ct"},
+        {"price": 181000, "squareFootage": 1600, "address": "115 Milledge Rd"}
+      ],
+      "county_assessed_value": 70000, "county_appraised_value": 175000,
+      "millage_rate": 26.5, "tax_annual": 1855
+    }
+  },
+  {
+    "id": "sample-1509-monte-carlo-dr",
+    "formattedAddress": "1509 Monte Carlo Dr, Augusta, GA 30906",
+    "addressLine1": "1509 Monte Carlo Dr",
+    "city": "Augusta", "state": "GA", "zipCode": "30906", "county": "Richmond",
+    "price": 135000, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1390,
+    "lotSize": 10890, "yearBuilt": 1972, "propertyType": "Single Family",
+    "construction": "brick", "hoa": {"fee": 0}, "daysOnMarket": 58,
+    "latitude": 33.4381, "longitude": -82.0142, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 142000, "avm_value_low": 133000, "avm_value_high": 151000,
+      "rent_estimate": 1550, "rent_low": 1450, "rent_high": 1650,
+      "comps": [
+        {"price": 140000, "squareFootage": 1380, "address": "1602 Monte Carlo Dr"},
+        {"price": 145500, "squareFootage": 1420, "address": "1815 Ossabaw St"},
+        {"price": 138000, "squareFootage": 1360, "address": "1710 Casino Dr"}
+      ],
+      "county_assessed_value": 56000, "county_appraised_value": 140000,
+      "millage_rate": 34.4, "tax_annual": 1926
+    }
+  },
+  {
+    "id": "sample-724-oakmont-ct",
+    "formattedAddress": "724 Oakmont Ct, Evans, GA 30809",
+    "addressLine1": "724 Oakmont Ct",
+    "city": "Evans", "state": "GA", "zipCode": "30809", "county": "Columbia",
+    "price": 249900, "bedrooms": 4, "bathrooms": 3, "squareFootage": 2350,
+    "lotSize": 15246, "yearBuilt": 2020, "propertyType": "Single Family",
+    "construction": "hardiplank", "hoa": {"fee": 25}, "daysOnMarket": 6,
+    "latitude": 33.5326, "longitude": -82.1301, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 258000, "rent_estimate": 2195, "millage_rate": 26.5
+    }
+  },
+  {
+    "id": "sample-3805-inverness-way",
+    "formattedAddress": "3805 Inverness Way, Martinez, GA 30907",
+    "addressLine1": "3805 Inverness Way",
+    "city": "Martinez", "state": "GA", "zipCode": "30907", "county": "Columbia",
+    "price": 215000, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1850,
+    "lotSize": 12197, "yearBuilt": 1992, "propertyType": "Single Family",
+    "construction": "brick", "hoa": {"fee": 0}, "daysOnMarket": 18,
+    "latitude": 33.5121, "longitude": -82.0824, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 219000, "rent_estimate": 1895, "millage_rate": 26.5
+    }
+  },
+  {
+    "id": "sample-208-brookstone-way",
+    "formattedAddress": "208 Brookstone Way, Grovetown, GA 30813",
+    "addressLine1": "208 Brookstone Way",
+    "city": "Grovetown", "state": "GA", "zipCode": "30813", "county": "Columbia",
+    "price": 209900, "bedrooms": 4, "bathrooms": 2, "squareFootage": 1980,
+    "lotSize": 10454, "yearBuilt": 2018, "propertyType": "Single Family",
+    "construction": "vinyl", "hoa": {"fee": 30}, "daysOnMarket": 11,
+    "latitude": 33.4552, "longitude": -82.2064, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 214000, "rent_estimate": 1995, "millage_rate": 26.5
+    }
+  },
+  {
+    "id": "sample-2909-tobacco-rd-mh",
+    "formattedAddress": "2909 Tobacco Rd, Hephzibah, GA 30815",
+    "addressLine1": "2909 Tobacco Rd",
+    "city": "Hephzibah", "state": "GA", "zipCode": "30815", "county": "Richmond",
+    "price": 95000, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1450,
+    "lotSize": 43560, "yearBuilt": 2001, "propertyType": "Manufactured",
+    "construction": "manufactured", "hoa": {"fee": 0}, "daysOnMarket": 41,
+    "latitude": 33.3542, "longitude": -82.0891, "status": "Active",
+    "listingUrl": ""
+  },
+  {
+    "id": "sample-1122-druid-park-ave",
+    "formattedAddress": "1122 Druid Park Ave, Augusta, GA 30904",
+    "addressLine1": "1122 Druid Park Ave",
+    "city": "Augusta", "state": "GA", "zipCode": "30904", "county": "Richmond",
+    "price": 110000, "bedrooms": 2, "bathrooms": 1, "squareFootage": 1050,
+    "lotSize": 6534, "yearBuilt": 1948, "propertyType": "Single Family",
+    "construction": "frame", "hoa": {"fee": 0}, "daysOnMarket": 63,
+    "latitude": 33.4832, "longitude": -82.0004, "status": "Active",
+    "listingUrl": ""
+  },
+  {
+    "id": "sample-407-peachtree-st-louisville",
+    "formattedAddress": "407 Peachtree St, Louisville, GA 30434",
+    "addressLine1": "407 Peachtree St",
+    "city": "Louisville", "state": "GA", "zipCode": "30434", "county": "Jefferson",
+    "price": 139900, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1600,
+    "lotSize": 21780, "yearBuilt": 1985, "propertyType": "Single Family",
+    "construction": "brick", "hoa": {"fee": 0}, "daysOnMarket": 47,
+    "latitude": 33.0015, "longitude": -82.4113, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 144000, "rent_estimate": 1350, "millage_rate": 31.0
+    }
+  },
+  {
+    "id": "sample-521-fairington-dr",
+    "formattedAddress": "521 Fairington Dr, Hephzibah, GA 30815",
+    "addressLine1": "521 Fairington Dr",
+    "city": "Hephzibah", "state": "GA", "zipCode": "30815", "county": "Richmond",
+    "price": 164900, "bedrooms": 3, "bathrooms": 2, "squareFootage": 1540,
+    "lotSize": 14374, "yearBuilt": 1999, "propertyType": "Single Family",
+    "construction": "brick veneer", "hoa": {"fee": 0}, "daysOnMarket": 22,
+    "latitude": 33.3455, "longitude": -82.1189, "status": "Active",
+    "listingUrl": "",
+    "sample_enrichment": {
+      "avm_value": 172000, "avm_value_low": 164000, "avm_value_high": 180000,
+      "rent_estimate": 1750, "rent_low": 1650, "rent_high": 1850,
+      "comps": [
+        {"price": 170000, "squareFootage": 1520, "address": "534 Fairington Dr"},
+        {"price": 176000, "squareFootage": 1580, "address": "4102 Colben Blvd"},
+        {"price": 168500, "squareFootage": 1500, "address": "610 Kestrel Ln"}
+      ],
+      "county_assessed_value": 68000, "county_appraised_value": 170000,
+      "millage_rate": 34.4, "tax_annual": 2339
+    }
+  }
+]

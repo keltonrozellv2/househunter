@@ -89,7 +89,7 @@ underwriting_assumptions:
   vacancy_pct: 0.08
   maintenance_pct: 0.10           # of gross rent
   capex_pct: 0.08                 # of gross rent (reserve)
-  mgmt_pct: 0.09                  # set 0.0 if you self-manage
+  mgmt_pct: 0.0                   # buyer self-manages (was 0.09; restore if hiring a manager)
   hoa_monthly: 0
   closing_costs_pct: 0.03
   min_cashflow_when_rented: 0     # true cash flow (after reserves) must clear this
